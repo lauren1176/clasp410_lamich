@@ -17,31 +17,63 @@ plt.ion()
 sigma = 5.6703e-8 # W m^-2 K^-4
 alpha = 0.33
 
-
-A = np.zeros([nlayers+1, nlayers+1])
-b = np.zeros(nlayers+1)
-
-
-def solve_energy_balance(n_layers, S0=1350, ep=1, alp=alpha):
+# Create a function to get temperatures for a n-layer atmosphere
+def solve_energy_balance(n_layers=5, S0=1350, ep=1, alp=alpha, debug=False):
     '''
     '''
     # Create array of coefficients, an N+1 x N+1 array
     A = np.zeros([n_layers+1, n_layers+1])
     b = np.zeros(n_layers+1)
-    #temps = fluxes / sigma
+    temps = np.zeros(n_layers+1)
 
-    #F = np.arange(0, nlayers+1, 1)
+    # Populate A array based on our model
+    for i in range(n_layers + 1):
+        for j in range(n_layers + 1):
+            
+            if i == j:
+                A[i, j] = -2 + (j==0) # handle diagonals; [0, 0] is a special case
 
-    # Populate A and b arrays based on our model
-    for i in range(nlayers+1):
-        for j in range(nlayers+1):
-            A[i, j] = ep * (1 - ep)**-i * F[i]
-            b = # What should go here?
+            else:
+                '''
+                ep**(i>0): 
+                    Accounts for epsilon not being present in the first row.
+                (1 - ep)**(np.abs(j-i) - 1): 
+                    (1 - epsilon) is raised to the column - row - 1 power.
+                '''
+                A[i, j] = ( ep**(i>0) ) * ( (1 - ep)**(np.abs(j-i) - 1)  )
 
-    # Invert matrix:
-    Ainv = np.inv(A)
-    # Get solution:
-    fluxes = np.matmul(Ainv, b) # Note our use of matrix multiplication!
+            if debug:
+                print(f"A[{i},{j}] = {A[i,j]}")
+
+    b[0] = -0.25 * S0 * (1 - alp)
+
+    if debug:
+        print(A)
+
+    # Invert matrix
+    Ainv = inv(A)
+
+    # Calculate fluxes
+    fluxes = np.matmul(Ainv, b)
+
+    # Calculate temperatures
+    for i, flux in enumerate(fluxes):
+        if i == 0:
+            temp = np.power(flux / sigma, 1/4)
+        else:
+            temp = np.power(flux / (ep * sigma), 1/4)
+        temps[i] = temp
+
+    return temps
+
+print(solve_energy_balance(n_layers=6, ep=0.8, debug=False))
+
+
+    
+
+    
+
+
 
 
 
