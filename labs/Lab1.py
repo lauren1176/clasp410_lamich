@@ -54,7 +54,7 @@ def solve_energy_balance(n_layers=5, S0=1350, ep=1, alp=alpha, debug=False):
     T_model : array of floats
               the predicted/modeled temperature of Earth's surface and atmospheric layers
     '''
-    # Create array of coefficients, an N+1 x N+1 array
+    # Create array of coefficients
     A = np.zeros([n_layers+1, n_layers+1])
     b = np.zeros(n_layers+1)
     temps = np.zeros(n_layers+1)
@@ -78,6 +78,7 @@ def solve_energy_balance(n_layers=5, S0=1350, ep=1, alp=alpha, debug=False):
             if debug:
                 print(f"A[{i},{j}] = {A[i,j]}")
 
+    # Solar flux reaches the Earth's surface
     b[0] = -0.25 * S0 * (1 - alp)
 
     if debug:
@@ -89,6 +90,9 @@ def solve_energy_balance(n_layers=5, S0=1350, ep=1, alp=alpha, debug=False):
     # Calculate fluxes
     fluxes = np.matmul(Ainv, b)
 
+    if debug:
+        print(f'The fluxes are {fluxes}')
+
     # Calculate temperatures
     for i, flux in enumerate(fluxes):
         if i == 0:
@@ -99,6 +103,7 @@ def solve_energy_balance(n_layers=5, S0=1350, ep=1, alp=alpha, debug=False):
 
     return temps
 
+# Print test 
 print(f'For these conditions:\nN layers = {n}, ε = {epsilon}, S₀ = {S}, α = alpha, debug = {debug}')
 print(f'The temperatures from the surface to layer {n} are\n{solve_energy_balance(n_layers=n, S0=S, ep=epsilon, alp=alpha, debug=debug)}\n')
 
@@ -124,14 +129,14 @@ for i, e in enumerate(emiss):
 fig, ax = plt.subplots(1, 1)
 ax.plot(emiss, T_s, label='Surface Temperature') 
 
-# Get emissivity at which T_s = 288K
+# Get the emissivity at which T_s = 288K
 idx = np.argwhere(np.diff(np.sign(T_s - 288)))[0] # this solution is from stackoverflow
 x1 = emiss[idx[0]]
 x2 = emiss[idx[0]+1]
 y = 288
 y1 = T_s[idx[0]]
 y2 = T_s[idx[0]+1]
-emiss_at_288 = x1 + ( ((y - y1) / (y2 - y1)) * (x2 - x1) )
+emiss_at_288 = x1 + ( ((y - y1) / (y2 - y1)) * (x2 - x1) ) # linear interpolation
 
 # Print this emissivity
 print(f'Emissivity of Earth\'s Atmosphere at 288 K: {emiss_at_288:.4f}')
@@ -257,7 +262,7 @@ def energy_balance_nuclear_winter(n_layers=5, S0=1350, ep=0.5, alp=alpha, debug=
     atmospheric emissivity, and planetary albedo (reflectivity).
 
     This current function edition makes it so the solar flux is completely absorbed 
-    by the top layer of the atmosphere.
+    by the top layer of the atmosphere, representing a nuclear winter scenario.
 
     Parameters
     ----------
@@ -279,8 +284,9 @@ def energy_balance_nuclear_winter(n_layers=5, S0=1350, ep=0.5, alp=alpha, debug=
     -------
     T_model : array of floats
               the predicted/modeled temperature of Earth's surface and atmospheric layers
+              in a nuclear winter scenario
     '''
-    # Create array of coefficients, an N+1 x N+1 array
+    # Create array of coefficients
     A = np.zeros([n_layers+1, n_layers+1])
     b = np.zeros(n_layers+1)
     temps = np.zeros(n_layers+1)
@@ -304,6 +310,7 @@ def energy_balance_nuclear_winter(n_layers=5, S0=1350, ep=0.5, alp=alpha, debug=
             if debug:
                 print(f"A[{i},{j}] = {A[i,j]}")
 
+    # Solar flux only reaches the top layer of the atmosphere
     b[-1] = -0.25 * S0 * (1 - alp)
 
     if debug:
@@ -328,6 +335,7 @@ def energy_balance_nuclear_winter(n_layers=5, S0=1350, ep=0.5, alp=alpha, debug=
 # Define ash's albedo
 ash_albedo = 0.5
 
+# Calculate the layer temperatures for the nuclear winter scenario
 nuclear_T = energy_balance_nuclear_winter(n_layers=5, ep=0.5, alp=ash_albedo)
 print(f'Surface Temperature for Nuclear Winter: {nuclear_T[0]}')
 
