@@ -337,7 +337,7 @@ ash_albedo = 0.5
 
 # Calculate the layer temperatures for the nuclear winter scenario
 nuclear_T = energy_balance_nuclear_winter(n_layers=5, ep=0.5, alp=ash_albedo)
-print(f'Surface Temperature for Nuclear Winter: {nuclear_T[0]}')
+print(f'Surface Temperature for Nuclear Winter: {nuclear_T[0]:.2f}')
 
 # Define layer altitudes as ~10 km per layer
 nuclear_altitudes = np.arange(nuclear_T.size) * 10 # km
