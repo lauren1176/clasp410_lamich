@@ -274,7 +274,7 @@ def energy_balance_nuclear_winter(n_layers=5, S0=1350, ep=0.5, alp=alpha, debug=
     ep:         float
                 atmospheric emissivity (or epsilon); the effectiveness of the 
                 atmosphere in emitting thermal radiation
-    alp:        float
+    alp:        floatsds
                 planetary albedo; how much light a surface reflects
     debug:      boolean condition
                 TRUE prints debugging statements throughout the code's output
