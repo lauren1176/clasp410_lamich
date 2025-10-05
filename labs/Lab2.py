@@ -7,6 +7,9 @@ Euler and RK8 methods.
 To reproduce the values and plots in my report, please simply run the script.
 In the terminal, use the commands "ipython" and then "run Lab2.py". 
 
+To specifically get Figure 1 in the report, change the dt_comp = 0.01 to 
+dt_comp = 1 and change the dt_pp = 0.001 to dt_pp = 0.05 at the top of the 
+### Question #1 ### section.
 '''
 
 # Imports and style
