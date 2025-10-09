@@ -8,6 +8,33 @@ plt.style.use('seaborn-v0_8-colorblind')
 plt.ion()
 plt.close('all')
 
+def diff1(fx, deltax=1.0):
+    '''
+    For a series of values representing f(x), where each value is separated
+    by some deltax, perform the forward difference approximation to the
+    derivative. Backward diff is used at the final point.
+    Parameters
+    ----------
+    fx : numpy array
+    A series of values representing f(x) taken at even spacing of deltax
+    Other Parameters
+    ----------------
+    deltax : float
+    The x-spacing of points in fx; defaults to 1.0
+    '''
+
+    # Create result array equal in size to input:
+    dfdx = np.zeros(fx.size)
+    
+    # Calculate forward difference for all points except the last:
+    dfdx[:-1] = (fx[1:] - fx[:-1]) / deltax
+
+    # Calculate the backward difference for the last point:
+    dfdx[-1] = (fx[-1] - fx[-2]) / deltax
+
+    # Return to caller:
+    return dfdx
+
 dx = 0.1
 x = np.arange(0, 6 * np.pi, dx)
 sinx = np.sin(x)
