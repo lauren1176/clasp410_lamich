@@ -238,7 +238,7 @@ else:
 ### Question 2 ###
 
 # Define parameters (in days instead of seconds)
-c2 = 0.25 * 86400 / 1000**2 # m^2/day
+c2 = 0.25 * 0.0864 # m^2/day (instead of 8640 / 1000**2, just put 0.0864.)
 dx = 1.0                    # m
 dt = 10.0                   # day 
 xstop = 100                 # m
@@ -333,7 +333,7 @@ if steady_yr is not None:
 ### Question 3 ###
 
 # Define parameters
-c2 = 0.25 * 86400 / 1000**2 # m^2/day
+c2 = 0.25 * 0.0864 # m^2/day
 dx = 1.0                    # m
 dt = 10.0                   # day 
 xstop = 100                 # m
@@ -358,7 +358,7 @@ for i, shift in enumerate(shifts):
     # Plot the temperature field
 
     # Plot contours and get colorbar
-    contour = ax3[i][0].pcolor(t/365.25, x, U, cmap='RdBu_r', vmin=-15, vmax=15)
+    contour = ax3[i][0].pcolor(t/365, x, U, cmap='RdBu_r', vmin=-15, vmax=15)
     cbar = plt.colorbar(contour)
 
     # Additional labels
