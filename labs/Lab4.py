@@ -199,12 +199,15 @@ prob_bare_arr = np.arange(0, 1.1, 0.1)
 # VARYING PROB_SPREAD #
 
 # Set up figure to plot metrics
-fig, ax = plt.subplots(1, 3, figsize=(14, 4), sharex=True)
+fig, ax = plt.subplots(2, 3, figsize=(14, 8), sharex=True)
 
 # Initialize arrays
 all_burn_fracs = []
 all_burn_times = []
 all_peaks = []
+all_final_burn = []
+all_final_bare = []
+all_final_forest = []
 
 # Run simulations varying prob_spread
 for r in range(runs):
@@ -225,16 +228,25 @@ for r in range(runs):
     burn_fracs = np.array([m['burn_frac'] for m in spread_vary_summary])
     burn_times = np.array([m['steps_to_all_burn'] for m in spread_vary_summary])
     peaks = np.array([m['peak_fire'] for m in spread_vary_summary])
+    num_burn = np.array([m['N_burn'] for m in spread_vary_summary])
+    num_bare = np.array([m['N_bare'] for m in spread_vary_summary])
+    num_forest = np.array([m['N_forest'] for m in spread_vary_summary])
 
     # Append current run to the master arrays of metrics
     all_burn_fracs.append(burn_fracs)
     all_burn_times.append(burn_times)
     all_peaks.append(peaks)
+    all_final_burn.append(num_burn)
+    all_final_bare.append(num_bare)
+    all_final_forest.append(num_forest)
 
     # Plot this current run on each subplot
-    ax[0].plot(x, burn_fracs, marker='o', alpha=0.7, label=f'Run {r+1}')
-    ax[1].plot(x, burn_times, marker='o', alpha=0.7, label=f'Run {r+1}')
-    ax[2].plot(x, peaks, marker='o', alpha=0.7, label=f'Run {r+1}')
+    ax[0,0].plot(x, burn_fracs, marker='o', alpha=0.7, label=f'Run {r+1}')
+    ax[0,1].plot(x, burn_times, marker='o', alpha=0.7, label=f'Run {r+1}')
+    ax[0,2].plot(x, peaks, marker='o', alpha=0.7, label=f'Run {r+1}')
+    ax[1,0].plot(x, num_burn, marker='o', alpha=0.7, label=f'Run {r+1}')
+    ax[1,1].plot(x, num_bare, marker='o', alpha=0.7, label=f'Run {r+1}')
+    ax[1,2].plot(x, num_forest, marker='o', alpha=0.7, label=f'Run {r+1}')
 
     # Print run summary
     print(f'Spread Variation Results for Run {r+1}:')
@@ -245,20 +257,29 @@ for r in range(runs):
     print(f'Median peak cells on fire: {np.median(peaks):.2f}\n')
 
 # Plot format
-ax[0].set_title('Final Burned Fraction')
-ax[1].set_title('Steps to Fire Extinction')
-ax[2].set_title('Peak Number of Cells on Fire')
-ax[0].set_xlabel('Spread Chance')
-ax[0].set_ylabel('Fraction (number of burned cells/total area)')
-ax[1].set_xlabel('Spread Chance')
-ax[1].set_ylabel('Number of Steps')
-ax[2].set_xlabel('Spread Chance')
-ax[2].set_ylabel('Number of Cells')
+ax[0,0].set_title('Final Burned Fraction')
+ax[0,1].set_title('Steps to Fire Extinction')
+ax[0,2].set_title('Peak Number of Cells on Fire')
+ax[1,0].set_title('Final Number of Burning Cells')
+ax[1,1].set_title('Final Number of Bare Cells')
+ax[1,2].set_title('Final Number of Forested Cells')
+ax[0,0].set_xlabel('Spread Chance')
+ax[0,0].set_ylabel('Fraction (number of burned cells/total area)')
+ax[0,1].set_xlabel('Spread Chance')
+ax[0,1].set_ylabel('Number of Steps')
+ax[0,2].set_xlabel('Spread Chance')
+ax[0,2].set_ylabel('Number of Cells')
+ax[1,0].set_xlabel('Spread Chance')
+ax[1,0].set_ylabel('Number of Cells')
+ax[1,1].set_xlabel('Spread Chance')
+ax[1,1].set_ylabel('Number of Cells')
+ax[1,2].set_xlabel('Spread Chance')
+ax[1,2].set_ylabel('Number of Cells')
 fig.suptitle('Impact of Spread Probability on Forest Fires', y=0.95, weight='bold')
 fig.tight_layout(rect=[0, 0, 1, 0.95]) # tight layout with room for title
 
 # Create one legend
-handles, labels = ax[0].get_legend_handles_labels()
+handles, labels = ax[0,0].get_legend_handles_labels()
 fig.legend(handles, labels, loc='upper right', ncol=runs)
 
 
@@ -331,72 +352,109 @@ fig2.legend(handles2, labels2, loc='upper right', ncol=runs)
 ### Question 3 ###
 
 # Create an updated version of the forest fire model to apply to disease spread
-def disease_spread(isize=3, jsize=3, nstep=4, spread_chance=1.0, bare_chance=0.0, ignite_chance=0.0):
+def disease_spread(isize=3, jsize=3, nstep=4, spread_chance=1.0, immune_chance=0.0, infect_chance=0.0, fatal_chance=0.5):
     '''
-    This function models a forest fire...
+    This function models a the spread of an infectious disease...
 
     Parameters
     ----------
     isize, jsize:   int, defaults = 3
-                    Set the size of the forest in x and y direction, respectively
+                    Set the size of the population in x and y direction, respectively
     nstep:          int, default = 4
                     Set the number of steps to advance solution
     spread_chance:  float, default = 1.0
-                    Set the probability that fire can spread in any direction, from 0 to 1 (or 0 to 100 %)
-    bare_chance:    float, default = 0.0
-                    Set the probability that a cell is naturally bare to begin with
-    ignite_chance:  float, default = 0.0
-                    Set the probability that a cell will catch fire at the start of the simulation
-    
+                    Set the probability that disease can spread in any direction, from 0 to 1 (or 0 to 100 %)
+    immune_chance:  float, default = 0.0
+                    Set the probability that a cell (person) is naturally immune to begin with
+    infect_chance:  float, default = 0.0
+                    Set the probability that a cell (person) will become infected at the start of the simulation
+    fatal_chance:   float, default = 0.5
+                    Set the probability that a cell (person) will die from the disease
     '''
 
-    # Create a forest grid with each box representing a tree
-    forest = np.zeros((nstep, isize, jsize)) + 2
+    # Create a population grid with each box representing a tree
+    population = np.zeros((nstep, isize, jsize)) + 2
 
     # Create the initial fire 
-    if ignite_chance > 0:
-        ignited = (np.random.rand(isize, jsize) < ignite_chance) & (forest[0] == 2)
-        forest[0, ignited] = 3
+    if infect_chance > 0:
+        infected = (np.random.rand(isize, jsize) < infect_chance) & (population[0] == 2)
+        population[0, infected] = 3
     else:
-        # Just center of forest catches fire
-        forest[0, isize//2, jsize//2] = 3
+        # Just center of population catches fire
+        population[0, isize//2, jsize//2] = 3
 
-    # Create initial bare forest cells
-    isbare = np.random.rand(isize, jsize) # Create an array of randomly generated numbers to represent which cells begin bare
-    isbare = isbare < bare_chance # Turn it into an array of True/False values
-    forest[0, isbare] = 1 # Change forest cells to bare if the corresponding isbare boolean is true
+    # Create initial immune population cells
+    isimmune = np.random.rand(isize, jsize) # Create an array of randomly generated numbers to represent which cells begin immune
+    isimmune = isimmune < immune_chance # Turn it into an array of True/False values
+    population[0, isimmune] = 1 # Change population cells to immune if the corresponding isimmune boolean is true
 
-    # Iterate through entire forest, identify fires, and spread fire as needed
+    # Iterate through entire population, identify infected people, and spread disease as needed
     for k in range(nstep-1):
 
         # Assume the next time step is the same as the current
-        forest[k+1, :, :] = forest[k, :, :]
+        population[k+1, :, :] = population[k, :, :]
 
         for i in range(isize):
             for j in range(jsize):
 
                 # Check if a spot is on fire
-                if forest[k, i, j] == 3: 
+                if population[k, i, j] == 3: 
 
-                    # Spread fire in each direction, based on the random chance and only spread to forest
+                    # Spread disease in each direction, based on the random chance and only spread to non-immune and alive population
 
-                    if (i>0) and (forest[k, i-1, j] == 2) and (spread_chance > rand()):
-                        forest[k+1, i-1, j] = 3 # spread North
+                    if (i>0) and (population[k, i-1, j] == 2) and (spread_chance > rand()):
+                        population[k+1, i-1, j] = 3 # spread Up
 
-                    if (i<isize-1) and (forest[k, i+1, j] == 2) and (spread_chance > rand()):
-                        forest[k+1, i+1, j] = 3 # spread South
+                    if (i<isize-1) and (population[k, i+1, j] == 2) and (spread_chance > rand()):
+                        population[k+1, i+1, j] = 3 # spread Down
 
-                    if (j>0) and (forest[k, i, j-1] == 2) and (spread_chance > rand()):
-                        forest[k+1, i, j-1] = 3 # spread West
+                    if (j>0) and (population[k, i, j-1] == 2) and (spread_chance > rand()):
+                        population[k+1, i, j-1] = 3 # spread Left
                     
-                    if (j<jsize-1) and (forest[k, i, j+1] == 2) and (spread_chance > rand()):
-                        forest[k+1, i, j+1] = 3 # spread East
+                    if (j<jsize-1) and (population[k, i, j+1] == 2) and (spread_chance > rand()):
+                        population[k+1, i, j+1] = 3 # spread Right
 
-                    # Change current burning trees to burnt in the next time step
-                    forest[k+1, i, j] = 1
+                    # Change current infected person to immune OR DEAD in the next time step
+                    if fatal_chance > rand():
+                        population[k+1, i, j] = 0 # Person is dead because random number was within mortality threshold
+                    else:
+                        population[k+1, i, j] = 1
 
-    return forest
+    return population
 
+def plot_disease(population, nsteps=4, width=12, height=4):
+    '''
+    '''
+
+    # Generate our custom segmented color map for this project.
+    # We can specify colors by names and then create a colormap that only uses
+    # those names. We have 4 fundamental states, so we want only 4 colors.
+    population_cmap = ListedColormap(['dimgray', 'royalblue', 'gold', 'crimson'])
+
+    # Create the figure and plot the population state for each time step
+    fig, ax = plt.subplots(1, nsteps, figsize=(width, height), sharey=True)
+    for k in range(nsteps):
+        ax[k].pcolor(population[k], cmap=population_cmap, vmin=0, vmax=3)
+        ax[k].set_title(f'Population State (Step {k})')
+        ax[k].set_xlabel('X (person)')
+    
+    # Other formatting
+    ax[0].set_ylabel('Y (person)') # Set shared y-axis label
+    fig.tight_layout(rect=[0, 0, 1, 0.87]) # tight layout with room for title
+    fig.suptitle('Disease Spread Progression over Time', weight='bold', y=0.97) # Set heading title
+
+    # Create a legend
+    ax[0].plot([], [], lw=3, color='dimgray', label='Dead')
+    ax[0].plot([], [], lw=3, color='royalblue', label='Immune')
+    ax[0].plot([], [], lw=3, color='gold', label='Healthy')
+    ax[0].plot([], [], lw=3, color='crimson', label='Infected')
+    fig.legend(ncol=2)
+
+    return fig, ax
+
+# Plot 3 x 3 population-disease spread grid 
+population_state = disease_spread(isize=3, jsize=3, nstep=4, spread_chance=0.8, immune_chance=0.2, infect_chance=0.0, fatal_chance=0.2)
+plot_disease(population=population_state, nsteps=4, width=12.5, height=4)
 
 '''
 Discussion:
