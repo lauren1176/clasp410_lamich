@@ -270,7 +270,6 @@ fire_params = dict(
 # Run the fire simulations and get the probability that a cell is burned
 nruns = 10
 burn_prob = run_fire_sims(nruns, **fire_params)
-print('\nRunning Linear Test #1 with wind = [10, 0]')
 
 # Create the figure
 fig, ax = plt.subplots(1, 1, figsize=(7, 7))
@@ -299,7 +298,6 @@ fire_params_2 = dict(
 )
 # Run the fire simulations and get the probability that a cell is burned
 burn_prob_2 = run_fire_sims(nruns, **fire_params_2)
-print('\nRunning Linear Test #2 with wind = [0, 10]')
 
 # Create the figure
 fig, ax = plt.subplots(1, 1, figsize=(7, 7))
@@ -328,7 +326,6 @@ fire_params_3 = dict(
 )
 # Run the fire simulations and get the probability that a cell is burned
 burn_prob_3 = run_fire_sims(nruns, **fire_params_3)
-print('\nRunning Linear Test #3 with wind = [10, 10]')
 
 # Create the figure
 fig, ax = plt.subplots(1, 1, figsize=(7, 7))
@@ -357,7 +354,6 @@ fire_params_4 = dict(
 )
 # Run the fire simulations and get the probability that a cell is burned
 burn_prob_4 = run_fire_sims(nruns, **fire_params_4)
-print('\nRunning Linear Test #4 with wind = [-10, -10]')
 
 # Create the figure
 fig, ax = plt.subplots(1, 1, figsize=(7, 7))
@@ -367,6 +363,154 @@ plot = ax.pcolor(burn_prob_4, cmap='afmhot', vmin=0, vmax=1)
 
 # Plot format
 ax.set_title(f'Linear Model: Burn Probability over {nruns} Runs for Southwest Wind [-10, -10]')
+ax.set_xlabel('X (km)')
+ax.set_ylabel('Y (km)')
+cbar = plt.colorbar(plot, orientation='horizontal')
+cbar.set_label('Burn Probability')
+
+
+### Question 4 ###
+
+# Test wind speed case 1 #
+
+# Define the parameters that will be passed into forest_fire for this test case
+fire_params = dict(
+    isize=11,
+    jsize=11,
+    nstep=10,
+    p_base=0.2,
+    p_bare=0.0,
+    p_ignite=0.0,
+    wind=[0.2, 0]
+)
+# Run the fire simulations and get the probability that a cell is burned
+nruns = 10
+burn_prob = run_fire_sims(nruns, **fire_params)
+
+# Create the figure
+fig, ax = plt.subplots(1, 1, figsize=(7, 7))
+
+# Plot the final forest state's probability that a cell is burned
+plot = ax.pcolor(burn_prob, cmap='afmhot', vmin=0, vmax=1)
+
+# Plot format
+ax.set_title(f'Nonlinear Model: Burn Probability over {nruns} Runs for Very Light Wind [0.2, 0]')
+ax.set_xlabel('X (km)')
+ax.set_ylabel('Y (km)')
+cbar = plt.colorbar(plot, orientation='horizontal')
+cbar.set_label('Burn Probability')
+
+# Test wind speed case 2 #
+
+# Define the parameters that will be passed into forest_fire for this test case
+fire_params = dict(
+    isize=11,
+    jsize=11,
+    nstep=10,
+    p_base=0.2,
+    p_bare=0.0,
+    p_ignite=0.0,
+    wind=[3, 0]
+)
+# Run the fire simulations and get the probability that a cell is burned
+nruns = 10
+burn_prob = run_fire_sims(nruns, **fire_params)
+
+# Create the figure
+fig, ax = plt.subplots(1, 1, figsize=(7, 7))
+
+# Plot the final forest state's probability that a cell is burned
+plot = ax.pcolor(burn_prob, cmap='afmhot', vmin=0, vmax=1)
+
+# Plot format
+ax.set_title(f'Nonlinear Model: Burn Probability over {nruns} Runs for Light Breeze [3, 0]')
+ax.set_xlabel('X (km)')
+ax.set_ylabel('Y (km)')
+cbar = plt.colorbar(plot, orientation='horizontal')
+cbar.set_label('Burn Probability')
+
+# Test wind speed case 3 #
+
+# Define the parameters that will be passed into forest_fire for this test case
+fire_params = dict(
+    isize=11,
+    jsize=11,
+    nstep=10,
+    p_base=0.2,
+    p_bare=0.0,
+    p_ignite=0.0,
+    wind=[8, 0]
+)
+# Run the fire simulations and get the probability that a cell is burned
+nruns = 10
+burn_prob = run_fire_sims(nruns, **fire_params)
+
+# Create the figure
+fig, ax = plt.subplots(1, 1, figsize=(7, 7))
+
+# Plot the final forest state's probability that a cell is burned
+plot = ax.pcolor(burn_prob, cmap='afmhot', vmin=0, vmax=1)
+
+# Plot format
+ax.set_title(f'Nonlinear Model: Burn Probability over {nruns} Runs for Strong Breeze [8, 0]')
+ax.set_xlabel('X (km)')
+ax.set_ylabel('Y (km)')
+cbar = plt.colorbar(plot, orientation='horizontal')
+cbar.set_label('Burn Probability')
+
+# Test wind speed case 4 #
+
+# Define the parameters that will be passed into forest_fire for this test case
+fire_params = dict(
+    isize=11,
+    jsize=11,
+    nstep=10,
+    p_base=0.2,
+    p_bare=0.0,
+    p_ignite=0.0,
+    wind=[16, 0]
+)
+# Run the fire simulations and get the probability that a cell is burned
+nruns = 10
+burn_prob = run_fire_sims(nruns, **fire_params)
+
+# Create the figure
+fig, ax = plt.subplots(1, 1, figsize=(7, 7))
+
+# Plot the final forest state's probability that a cell is burned
+plot = ax.pcolor(burn_prob, cmap='afmhot', vmin=0, vmax=1)
+
+# Plot format
+ax.set_title(f'Nonlinear Model: Burn Probability over {nruns} Runs for Light Gale [16, 0]')
+ax.set_xlabel('X (km)')
+ax.set_ylabel('Y (km)')
+cbar = plt.colorbar(plot, orientation='horizontal')
+cbar.set_label('Burn Probability')
+
+# Test wind speed case 5 #
+
+# Define the parameters that will be passed into forest_fire for this test case
+fire_params = dict(
+    isize=11,
+    jsize=11,
+    nstep=10,
+    p_base=0.2,
+    p_bare=0.0,
+    p_ignite=0.0,
+    wind=[22, 0]
+)
+# Run the fire simulations and get the probability that a cell is burned
+nruns = 10
+burn_prob = run_fire_sims(nruns, **fire_params)
+
+# Create the figure
+fig, ax = plt.subplots(1, 1, figsize=(7, 7))
+
+# Plot the final forest state's probability that a cell is burned
+plot = ax.pcolor(burn_prob, cmap='afmhot', vmin=0, vmax=1)
+
+# Plot format
+ax.set_title(f'Nonlinear Model: Burn Probability over {nruns} Runs for Strong Gale [22, 0]')
 ax.set_xlabel('X (km)')
 ax.set_ylabel('Y (km)')
 cbar = plt.colorbar(plot, orientation='horizontal')
