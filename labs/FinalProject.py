@@ -1,8 +1,11 @@
 #!/usr/bin/ipython3
 
 '''
+This final project lab assignment expands upon the pseudo-stochastic forest fire 
+spread model introduced in Lab 4 to include wind speed and direction effects.
+
 To reproduce similar values and plots to the ones in my report, please simply run
-the script. In the terminal, use the commands "ipython" and then "run Lab4.py". 
+the script. In the terminal, use the commands "ipython" and then "run FinalProject.py". 
 '''
 
 import numpy as np
@@ -16,6 +19,33 @@ plt.close('all')
 
 # Define the function to calculate the fire spread probability based on wind 
 def calc_pwind(w, dhat, linear=True):
+    '''
+    Calculate the wind's effects on fire spread probability in a given direction.
+    The wind's contribution is based on the projection of the wind vector onto
+    a direction unit vector with a dot product.
+
+    Two models can be run with this function:
+        1. "linear"     (linear=True)  - p_wind increases linearly from 0 to 10 m/s
+        2. "nonlinear"  (linear=False) - p_wind follows a categorical, piecewise 
+                                         function as defined in the lab writeup
+
+    Parameters
+    ----------
+    w:      array-like (must have length/size of 2)
+            Wind vector [u, v] in m/s, where u is the east-west component and 
+            v is the north-south component 
+    dhat:   array-like (must have length/size of 2)
+            Unit vector indicating the spread direction
+    linear: boolean, default = True
+            If True, calculate pwind using the nonlinear model with the 10 m/s threshold
+            If False, use the nonlinear piecewise function of differing wind speeds
+
+    Returns
+    -------
+    result: float
+            The fire spread probability caused by the wind effects;
+            Ranges from 0 to 1 which is 0 to 100%
+    '''
 
     # Convert w and dhat vectors into arrays
     w = np.asarray(w, dtype=float)
@@ -39,7 +69,7 @@ def calc_pwind(w, dhat, linear=True):
         s3 = 13.859
         s4 = 20.565
 
-        # Piecewise function using if statements
+        # Piecewise function
         if s <= 0.0:
             result = 0.0
 
@@ -63,8 +93,9 @@ def calc_pwind(w, dhat, linear=True):
 # Define the function to model a forest fire
 def forest_fire(isize=3, jsize=3, nstep=4, p_base=1, p_bare=0.0, p_ignite=0.0, wind=[0, 0]):
     '''
-    This function models a forest fire on a 2D grid. Each ell can be bare/burnt (state 1),
-    unburned forest (state 2), or actively burning (state 3).
+    This function models a forest fire on a 2D grid with optional wind forcing. 
+    Each cell can be bare/burnt (state 1), unburned forest (state 2), or 
+    actively burning (state 3).
 
     Parameters
     ----------
@@ -72,18 +103,20 @@ def forest_fire(isize=3, jsize=3, nstep=4, p_base=1, p_bare=0.0, p_ignite=0.0, w
                     Set the size of the forest in x and y direction, respectively
     nstep:          int, default = 4
                     Set the number of steps to advance solution
-    spread_chance:  float, default = 1.0
-                    Set the probability that fire can spread in any direction, from 0 to 1 (or 0 to 100 %)
-    bare_chance:    float, default = 0.0
+    p_base:         float, default = 1.0
+                    Set the probability that fire can spread in any direction, from 0 to 1 (or 0 to 100%)
+    p_bare:         float, default = 0.0
                     Set the probability that a cell is naturally bare to begin with
-    ignite_chance:  float, default = 0.0
-                    Set the probability that a cell will catch fire at the start of the simulation.
-                    If 0, the center cell is set on fire instead.
+    p_ignite:       float, default = 0.0
+                    Set the probability that a cell will catch fire at the start of the simulation
+                    If 0, the center cell is set on fire instead
+    wind:           array-like (must have length/size of 2), default = [0, 0] which is no wind
+                    Wind vector [u, v] in m/s that is used to calculate p_wind for each spread direction
 
     Returns
     -------
     forest: array
-            Forest state at each time step.
+            Forest state at each time step
     '''
 
     # Create a forest grid with each box representing a tree
@@ -157,17 +190,17 @@ def plot_fire(forest, nsteps=4, width=12, height=4):
     
     Parameters
     ----------
-    forest: array
-            3D array of forest states, returned by forest_fire function
-    nsteps: int; default = 4
-            Number of time steps to plot
-    width, height:  float; defaults = 12, 4
+    forest:         array
+                    3D array of forest states, returned by forest_fire function
+    nsteps:         int, default = 4
+                    Number of time steps to plot
+    width, height:  float, defaults = 12, 4
                     Figure size
 
     Returns
     -------
     fig, ax: Figure and Axes
-             Matplotlib figure and array of axes with the plots.
+             Matplotlib figure and array of axes with the plots
     '''
 
     # Generate our custom segmented color map for this project.
@@ -201,36 +234,40 @@ def run_fire_sims(nruns=10, **fire_kwargs):
 
     Parameters
     ----------
-    nruns:  int
+    nruns:  int, default-=10
             Number of simulations to run
-    kwargs: dict
-            Keyword arguments to pass to the forest_fire() function
+    fire_kwargs: dict
+                 Keyword arguments to pass to the forest_fire() function
 
     Returns
     -------
     burn_prob:  2D array
-                Probability that each cell is burned at the final step
+                Probability (averaged over nruns) that each cell is burned at the final step
     '''
 
-    # Run one simulation to get grid size
+    # Run one simulation, get grid size
     test_run = forest_fire(**fire_kwargs)
     final_shape = test_run[-1].shape
 
     # Initialize variable to count number of burned cells
     burn_count = np.zeros(final_shape)
 
+    # Iterate through the number of runs
     for i in range(nruns):
-        # Call the forest_fire function for 
+        # Call the forest_fire function 
         forest = forest_fire(**fire_kwargs)
+
+        # Store the final state
         final_state = forest[-1]
 
         # Count burned cells in final state
         burn_count += (final_state == 1)
 
-    # Convert counts to probabilities
+    # Convert the counts to probabilities
     burn_prob = burn_count / nruns
 
     return burn_prob
+    
 
 ### Question 1 ###
 
@@ -441,6 +478,7 @@ fire_params = dict(
     p_ignite=0.0,
     wind=[8, 0]
 )
+
 # Run the fire simulations and get the probability that a cell is burned
 nruns = 10
 burn_prob = run_fire_sims(nruns, **fire_params)
